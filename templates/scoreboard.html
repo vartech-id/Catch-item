@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="screen screen--scoreboard" style="background-image:url('{{ cfg.branding.backgrounds.scoreboard }}')">
+  <div class="logo-wrap">
+    <img class="logo" src="{{ cfg.branding.logo }}" alt="Logo">
+  </div>
+
+  <div class="card scoreboard">
+    <h1>{{ player.name }}</h1>
+    <p class="score">Score: <strong>{{ score }}</strong></p>
+
+    {% if top and top|length > 0 %}
+    <ol class="top">
+      {% for row in top %}
+      <li>{{ row.name }} — <strong>{{ row.score }}</strong></li>
+      {% endfor %}
+    </ol>
+    {% endif %}
+
+    <div class="actions">
+      <a class="btn" href="/">Home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

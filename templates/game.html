@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="screen screen--game" style="background-image:url('{{ cfg.branding.backgrounds.game }}')">
+  <div class="hud">
+    <div class="hud__left">
+      <span class="hud__label">Player</span>
+      <span class="hud__value">{{ player.name }}</span>
+    </div>
+    <div class="hud__center">
+      <span class="hud__label">Score</span>
+      <span id="score" class="hud__value">0</span>
+    </div>
+    <div class="hud__right">
+      <span class="hud__label">Time</span>
+      <span id="timer" class="hud__value">--</span>
+    </div>
+    <div id="score-delta" class="score-delta"></div>
+  </div>
+
+  <!-- SVG stage -->
+  <svg id="game-svg" class="game-svg" viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice">
+    <defs id="svg-defs"></defs>
+    <!-- cart + items appended by JS -->
+  </svg>
+
+  <!-- pointer control zone (bottom 40%) -->
+  <div id="control-zone" class="control-zone"></div>
+
+  <!-- hidden form to finish -->
+  <form id="finish-form" method="post" action="/finish" class="hidden">
+    <input type="hidden" name="score" id="finish-score" value="0">
+  </form>
+</div>
+{% endblock %}

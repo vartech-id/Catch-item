@@ -1,0 +1,16 @@
+{
+  "branding": {
+    "backgrounds": {
+      "welcome": "/assets/backgrounds/welcome.png",
+      "game": "/assets/backgrounds/game.png",
+      "scoreboard": "/assets/backgrounds/scoreboard.png"
+    },
+    "logo": "/assets/logo/event-logo.png"
+  },
+  "graphics": { "cart": "/assets/cart/cart.png",   "cartBoxSize": 280,"cartImgScale": 0.8,
+  "items": ["/assets/items/item1.png"], 
+  "bomb": "/assets/items/bomb.png" },
+  "theme": { "colors": { "primary": "#FFD700", "text": "#FFFFFF", "hudBg": "rgba(0,0,0,0.35)" }, "layout": { "safeMargin": 24 } },
+  "gameplay": { "mode": "timer", "duration": 35, "spawnRate": 0.8, "speed": 1.0, "bombChance": 0.15,"bombPenalty": 10 },
+  "ux": { "countdown": true, "autoReturnSeconds": 12, "sfx": false }
+}

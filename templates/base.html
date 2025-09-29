@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ cfg.theme.title if cfg.theme and cfg.theme.title else "Kiosk Game" }}</title>
+  <link rel="stylesheet" href="/static/style.css">
+  {% if cfg.theme and cfg.theme.font and cfg.theme.font.url %}
+  <style>
+    @font-face {
+      font-family: '{{ cfg.theme.font.family or "EventSans" }}';
+      src: url('{{ cfg.theme.font.url }}') format('woff2');
+      font-display: swap;
+    }
+    :root{
+      --font-family: {{ (cfg.theme.font.family or "EventSans")|tojson }};
+    }
+  </style>
+  {% endif %}
+  <style>
+    :root{
+      --color-primary: {{ cfg.theme.colors.primary|default("#FFD700") }};
+      --color-text:    {{ cfg.theme.colors.text|default("#FFFFFF") }};
+      --hud-bg:        {{ cfg.theme.colors.hudBg|default("rgba(0,0,0,0.35)") }};
+      --safe:          {{ cfg.theme.layout.safeMargin|default(24) }}px;
+    }
+  </style>
+</head>
+<body data-page="{{ page }}">
+  <main id="stage" class="stage">
+    {% block content %}{% endblock %}
+  </main>
+  <script src="/static/main.js"></script>
+</body>
+</html>
