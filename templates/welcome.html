@@ -1,14 +1,33 @@
-{% extends "base.html" %}
-{% block content %}
-<div class="screen screen--welcome" style="background-image:url('{{ cfg.branding.backgrounds.welcome }}')">
+{% extends "base.html" %} {% block content %}
+<div
+  class="screen screen--welcome"
+  style="background-image:url('{{ cfg.branding.backgrounds.welcome }}')"
+>
   <div class="logo-wrap">
-    <img class="logo" src="{{ cfg.branding.logo }}" alt="Logo">
+    <img class="logo" src="{{ cfg.branding.logo }}" alt="Logo" />
   </div>
   <form class="card form" method="post" action="/start" autocomplete="off">
     <label>Nama</label>
-    <input name="name" required placeholder="Nama lengkap" />
+    <input
+      type="text"
+      id="name"
+      name="name"
+      required
+      placeholder="Nama anda"
+      pattern="[A-Za-z\s]+"
+      title="Nama hanya boleh mengandung huruf dan spasi."
+    />
     <label>No. HP</label>
-    <input name="phone" required placeholder="08xx..." inputmode="tel" />
+    <input
+      type="tel"
+      id="phone"
+      name="phone"
+      required
+      placeholder="08xx..."
+      inputmode="tel"
+      pattern="[0-9]+"
+      title="Hanya masukkan angka (0-9) untuk Nomor HP."
+    />
     <button type="submit" class="btn btn-primary">Start</button>
   </form>
 </div>

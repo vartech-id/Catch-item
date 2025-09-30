@@ -7,10 +7,24 @@
     },
     "logo": "/assets/logo/event-logo.png"
   },
-  "graphics": { "cart": "/assets/cart/cart.png",   "cartBoxSize": 280,"cartImgScale": 0.8,
-  "items": ["/assets/items/item1.png"], 
-  "bomb": "/assets/items/bomb.png" },
+"graphics": {
+  "cart": "/assets/cart/cart.png",
+  "items": [
+    { "src": "/assets/items/item1.png", "label":"Brand A", "score":100, "weight":1, "speedMul":1.8, "size":128 },
+    { "src": "/assets/items/item2.png", "label":"Umum",    "score":20, "weight":2, "speedMul":1.0, "size":128 },
+    { "src": "/assets/items/item3.png", "label":"biasa",    "score":10, "weight":2, "speedMul":1.0, "size":128 }
+  ],
+  "bombs": [
+    { "src": "/assets/items/bomb.png", "label":"Bomb", "penalty":10, "weight":10, "speedMul":1.5, "size":140 }
+  ],
+  "cartBoxSize": 250,
+  "cartImgScale": 0.9
+},
   "theme": { "colors": { "primary": "#FFD700", "text": "#FFFFFF", "hudBg": "rgba(0,0,0,0.35)" }, "layout": { "safeMargin": 24 } },
-  "gameplay": { "mode": "timer", "duration": 35, "spawnRate": 0.8, "speed": 1.0, "bombChance": 0.15,"bombPenalty": 10 },
+  "gameplay": { 
+    "mode": "timer", 
+    "duration": 60, 
+    "spawnRate": 1.8,
+    "speed": 1.0 }, 
   "ux": { "countdown": true, "autoReturnSeconds": 12, "sfx": false }
 }

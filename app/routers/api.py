@@ -2,13 +2,22 @@
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import JSONResponse, RedirectResponse
 import uuid
+import json
+from pathlib import Path
 
 router = APIRouter()
 
 # Public JSON (optional for frontend use)
 @router.get("/config")
 def get_config(request: Request):
-    return JSONResponse(request.app.state.cfg)
+    try:
+        base = Path(__file__).resolve().parents[2]  # root proyek
+        with (base / "config.json").open("r", encoding="utf-8") as f:
+            data = json.load(f)
+        return JSONResponse(data, headers={"Cache-Control": "no-store"})
+    except Exception:
+        # fallback kalau gagal parsing
+        return JSONResponse(request.app.state.cfg, headers={"Cache-Control": "no-store"})
 
 @router.get("/top")
 def get_top(request: Request):

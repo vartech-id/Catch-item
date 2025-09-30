@@ -8,13 +8,13 @@ from .services.scores import ScoreBoard
 DEFAULT_CFG = {
     "branding": {
         "backgrounds": {
-            "welcome": "/assets/backgrounds/welcome.jpg",
-            "game": "/assets/backgrounds/game.jpg",
-            "scoreboard": "/assets/backgrounds/scoreboard.jpg",
+            "welcome": "/assets/backgrounds/welcome.png",
+            "game": "/assets/backgrounds/game.png",
+            "scoreboard": "/assets/backgrounds/scoreboard.png",
         },
         "logo": "/assets/logo/event-logo.png",
     },
-    "graphics": {"cart": "/assets/cart/cart.svg", "items": ["/assets/items/item1.svg"]},
+    "graphics": {"cart": "/assets/cart/cart.svg", "items": ["/assets/items/item1.png"]},
     "theme": {"colors": {"primary": "#FFD700", "text": "#FFFFFF", "hudBg": "rgba(0,0,0,0.35)"},
               "layout": {"safeMargin": 24}},
     "gameplay": {"mode": "timer", "duration": 35, "spawnRate": 0.8, "speed": 1.0},
