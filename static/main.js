@@ -259,43 +259,93 @@ async function initGamePage() {
     });
   }
 
-  // ------- DRAG CONTROL (press & hold to move)
-  let isDragging = false;
-  let activePointerId = null;
+// ------- DRAG CONTROL (A + B): must start on cart + grip offset -------
+let isDragging = false;
+let activePointerId = null;
+let gripOffsetX = 0; // selisih antara titik sentuh & pusat cart saat mulai
 
-  [control, svg].forEach((el) => {
-    el.addEventListener("pointerdown", onPointerDown, { passive: false });
-  });
+const HIT_TOL = 12; // toleransi hit cart (px koordinat viewBox)
 
-  function onPointerDown(e) {
-    if (e.button !== undefined && e.button !== 0) return;
-    activePointerId = e.pointerId;
-    isDragging = true;
-    e.currentTarget.setPointerCapture?.(activePointerId);
-    e.preventDefault();
+// hit-test: apakah pointerdown dimulai di area cart (dengan toleransi)
+function isPointerOnCart(clientX, clientY) {
+  const rect = svg.getBoundingClientRect(); // selalu pakai rect SVG
+  const relX = (clientX - rect.left) / rect.width;   // 0..1
+  const relY = (clientY - rect.top) / rect.height;   // 0..1
+  const x = relX * VB_WIDTH;
+  const y = relY * VB_HEIGHT;
+  return (
+    x >= (cartBoxX - HIT_TOL) &&
+    x <= (cartBoxX + CART_BOX_SIZE + HIT_TOL) &&
+    y >= (cartBoxY - HIT_TOL) &&
+    y <= (cartBoxY + CART_BOX_SIZE + HIT_TOL)
+  );
+}
 
-    moveCartToClientX(e.clientX);
+// pindahkan cart berdasarkan pusat yang diinginkan (bukan clientX langsung)
+function moveCartCenterTo(centerX) {
+  cartBoxX = clamp(centerX - CART_BOX_SIZE / 2, 0, VB_WIDTH - CART_BOX_SIZE);
+  layoutCart();
+}
 
-    window.addEventListener("pointermove", onPointerMove, { passive: false });
-    window.addEventListener("pointerup", onPointerUp, { passive: true });
-    window.addEventListener("pointercancel", onPointerUp, { passive: true });
-    window.addEventListener("lostpointercapture", onPointerUp, { passive: true });
-  }
-  function onPointerMove(e) {
-    if (!isDragging || e.pointerId !== activePointerId) return;
-    e.preventDefault();
-    moveCartToClientX(e.clientX);
-  }
-  function onPointerUp(e) {
-    if (e.pointerId !== activePointerId) return;
-    isDragging = false;
-    activePointerId = null;
-    try { e.currentTarget?.releasePointerCapture?.(e.pointerId); } catch {}
-    window.removeEventListener("pointermove", onPointerMove);
-    window.removeEventListener("pointerup", onPointerUp);
-    window.removeEventListener("pointercancel", onPointerUp);
-    window.removeEventListener("lostpointercapture", onPointerUp);
-  }
+// Pasang listener di KEDUANYA: svg dan control-zone
+[svg, control].forEach((target) => {
+  target.addEventListener("pointerdown", onPointerDown, { passive: false });
+});
+
+function onPointerDown(e) {
+  // hanya pointer utama
+  if (e.button !== undefined && e.button !== 0) return;
+
+  // wajib mulai di cart; kalau tidak, abaikan (tidak teleport)
+  if (!isPointerOnCart(e.clientX, e.clientY)) return;
+
+  isDragging = true;
+  activePointerId = e.pointerId;
+
+  // hitung grip offset supaya tidak lompat
+  const rect = svg.getBoundingClientRect();
+  const relX = (e.clientX - rect.left) / rect.width;
+  const pointerX = relX * VB_WIDTH;
+  const cartCenterX = cartBoxX + CART_BOX_SIZE / 2;
+  gripOffsetX = pointerX - cartCenterX;
+
+  e.preventDefault();
+  (e.currentTarget).setPointerCapture?.(activePointerId);
+
+  // listen global selama drag
+  window.addEventListener("pointermove", onPointerMove, { passive: false });
+  window.addEventListener("pointerup", onPointerUp, { passive: true });
+  window.addEventListener("pointercancel", onPointerUp, { passive: true });
+  window.addEventListener("lostpointercapture", onPointerUp, { passive: true });
+}
+
+function onPointerMove(e) {
+  if (!isDragging || e.pointerId !== activePointerId) return;
+  e.preventDefault();
+
+  const rect = svg.getBoundingClientRect();
+  const relX = (e.clientX - rect.left) / rect.width;
+  const pointerX = relX * VB_WIDTH;
+
+  const desiredCenterX = pointerX - gripOffsetX;
+  moveCartCenterTo(desiredCenterX);
+}
+
+function onPointerUp(e) {
+  if (e.pointerId !== activePointerId) return;
+  isDragging = false;
+  activePointerId = null;
+  gripOffsetX = 0;
+
+  try { (e.currentTarget)?.releasePointerCapture?.(e.pointerId); } catch {}
+
+  window.removeEventListener("pointermove", onPointerMove);
+  window.removeEventListener("pointerup", onPointerUp);
+  window.removeEventListener("pointercancel", onPointerUp);
+  window.removeEventListener("lostpointercapture", onPointerUp);
+}
+
+
 
   // === FEEDBACK HELPERS ===
   function flashHudForBomb() {
