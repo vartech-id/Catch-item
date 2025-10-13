@@ -21,7 +21,18 @@ def get_config(request: Request):
 
 @router.get("/top")
 def get_top(request: Request):
-    return JSONResponse(request.app.state.scores.top())
+    scores = request.app.state.scores.top()
+    payload = [
+        {
+            "id": entry.id,
+            "name": entry.name,
+            "score": entry.score,
+            "rank": entry.rank,
+            "created_at": entry.created_at,
+        }
+        for entry in scores
+    ]
+    return JSONResponse(payload)
 
 # Gameplay flow
 @router.post("/start")
@@ -33,6 +44,11 @@ def start_game(request: Request, name: str = Form(...), phone: str = Form(...)):
 @router.post("/finish")
 def finish(request: Request, score: int = Form(...)):
     player = request.session.get("player") or {"name": "Player"}
-    request.app.state.scores.push(player.get("name", "Player"), int(score))
+    score_id = request.app.state.scores.push(
+        player.get("name", "Player"),
+        int(score),
+        player.get("phone"),
+    )
     request.session["last_score"] = int(score)
+    request.session["last_score_id"] = score_id
     return RedirectResponse(url="/scoreboard", status_code=303)

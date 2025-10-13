@@ -1,24 +1,48 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="screen screen--scoreboard" style="background-image:url('{{ cfg.branding.backgrounds.scoreboard }}')">
-  <div class="logo-wrap">
-    <img class="logo" src="{{ cfg.branding.logo }}" alt="Logo">
-  </div>
+  <div class="scoreboard__wrap">
+    <div class="scoreboard__brand">
+    </div>
 
-  <div class="card scoreboard">
-    <h1>{{ player.name }}</h1>
-    <p class="score">Score: <strong>{{ score }}</strong></p>
+    <div class="scoreboard__card">
+      <div class="scoreboard__summary">
+        <h1 class="scoreboard__player">{{ player.name }}</h1>
+        <p class="scoreboard__points">{{ score }}</p>
+        {% if player_rank %}
+        <p class="scoreboard__rank">You placed <strong>{{ player_rank.ordinal }}</strong></p>
+        {% else %}
+        <p class="scoreboard__rank">Great effort! See the Top 10 below.</p>
+        {% endif %}
+      </div>
 
-    {% if top and top|length > 0 %}
-    <ol class="top">
-      {% for row in top %}
-      <li>{{ row.name }} — <strong>{{ row.score }}</strong></li>
-      {% endfor %}
-    </ol>
-    {% endif %}
+      <div class="scoreboard__list">
+        <div class="scoreboard__list-head">
+          <h2>Top 10</h2>
+          <span class="scoreboard__list-sub">Score</span>
+        </div>
+        <ul class="leaderboard">
+          {% if rows and rows|length > 0 %}
+            {% for row in rows %}
+              {% if row.ellipsis %}
+              <li class="leaderboard__row leaderboard__row--spacer">...</li>
+              {% else %}
+              <li class="leaderboard__row{% if row.is_player %} leaderboard__row--player{% endif %}">
+                <span class="leaderboard__rank">{{ row.ordinal }}</span>
+                <span class="leaderboard__name">{{ row.name }}</span>
+                <span class="leaderboard__score">{{ row.score }}</span>
+              </li>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            <li class="leaderboard__row leaderboard__row--empty">No scores yet. Be the first!</li>
+          {% endif %}
+        </ul>
+      </div>
 
-    <div class="actions">
-      <a class="btn" href="/">Home</a>
+      <div class="scoreboard__actions">
+        <a class="btn btn-primary" href="/">Home</a>
+      </div>
     </div>
   </div>
 </div>

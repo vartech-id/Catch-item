@@ -158,7 +158,7 @@ async function initGamePage() {
 
   // ---- Cart (1:1 box + image fit)
   const CART_BOX_SIZE     = Number(cfg?.graphics?.cartBoxSize ?? 250);
-  const CART_MARGIN_BOTTOM= 10;
+  const CART_MARGIN_BOTTOM= 100;
   let cartBoxX = (VB_WIDTH - CART_BOX_SIZE) / 2;
   let cartBoxY = VB_HEIGHT - CART_BOX_SIZE - CART_MARGIN_BOTTOM;
 

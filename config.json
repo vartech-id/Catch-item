@@ -3,7 +3,7 @@
     "backgrounds": {
       "welcome": "/assets/backgrounds/welcome.png",
       "game": "/assets/backgrounds/game.png",
-      "scoreboard": "/assets/backgrounds/scoreboard.png"
+      "scoreboard": "/assets/background/scoreboard.png"
     },
     "logo": "/assets/logo/event-logo.png"
   },
@@ -26,5 +26,5 @@
     "duration": 60, 
     "spawnRate": 1.8,
     "speed": 1.0 }, 
-  "ux": { "countdown": true, "autoReturnSeconds": 12, "sfx": false }
+  "ux": { "countdown": true, "autoReturnSeconds": 999999, "sfx": false }
 }

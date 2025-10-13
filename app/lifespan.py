@@ -3,14 +3,14 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 import json
 from fastapi import FastAPI
-from .services.scores import ScoreBoard
+from .services.scores import ScoreStore
 
 DEFAULT_CFG = {
     "branding": {
         "backgrounds": {
             "welcome": "/assets/backgrounds/welcome.png",
             "game": "/assets/backgrounds/game.png",
-            "scoreboard": "/assets/backgrounds/scoreboard.png",
+            "scoreboard": "/assets/background/scoreboard.png",
         },
         "logo": "/assets/logo/event-logo.png",
     },
@@ -42,7 +42,8 @@ async def lifespan(app: FastAPI):
         print("[INFO] Menggunakan DEFAULT_CFG (silakan lengkapi config.json Anda).")
 
     # Services
-    app.state.scores = ScoreBoard(top_n=10)
+    data_dir = base_dir / "data"
+    app.state.scores = ScoreStore(db_path=data_dir / "scores.db", top_n=10)
 
     try:
         yield
