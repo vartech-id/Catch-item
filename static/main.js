@@ -102,10 +102,11 @@ async function initGamePage() {
 
   // ---- Gameplay config (global)
   const durationSec = Number(cfg?.gameplay?.duration ?? 100);
-  const spawnRate   = Number(cfg?.gameplay?.spawnRate ?? 0.8);   // items per second
+  const spawnRate   = Number(cfg?.gameplay?.spawnRate ?? 0.8);
   const globalSpeed = Number(cfg?.gameplay?.speed ?? 1.0);
   const defaultScore= Number(cfg?.gameplay?.scoring?.default ?? 10);
-  const defaultPenalty = Number(cfg?.gameplay?.bombPenalty ?? 10);
+  const defaultPenalty = Number(cfg?.gameplay?.bombPenalty ?? 50);
+  const MAX_ITEMS = Number(cfg?.gameplay?.maxItems ?? 20);
 
   // ---- Assets: normalize items/bombs (boleh string atau object di config)
   const cartSrc = cfg?.graphics?.cart;
@@ -187,7 +188,6 @@ async function initGamePage() {
   }
 
   // ---- Pool & active objects (pakai ukuran per item)
-  const MAX_ITEMS = 64;
   const pool = [];
   const activeItems = []; // {el, x, y, width, height, velocityY, isBomb, score, penalty}
 
