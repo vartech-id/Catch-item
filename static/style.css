@@ -1,32 +1,107 @@
-*{box-sizing:border-box}
-html,body{height:100%;margin:0}
-body{font-family:var(--font-family, system-ui, Arial, sans-serif); color:var(--color-text); background:#000}
-.stage{width:100%;height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.screen{
-  width:1080px;height:1920px;position:relative;background-size:cover;background-position:center;
+* {
+  box-sizing: border-box;
 }
-.logo-wrap{position:absolute;top:var(--safe);right:var(--safe)}
-.logo{max-width:220px;height:auto}
-
-.card{
-  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-  background:rgba(0,0,0,.5);backdrop-filter:saturate(120%) blur(4px);
-  padding:24px;border:2px solid var(--color-primary);border-radius:20px;min-width:540px;text-align:center
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+body {
+  font-family: var(--font-family, system-ui, Arial, sans-serif);
+  color: var(--color-text);
+  background: #000;
+}
+.stage {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.screen {
+  width: 1080px;
+  height: 1920px;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+}
+.logo-wrap {
+  position: absolute;
+  top: var(--safe);
+  right: var(--safe);
+}
+.logo {
+  max-width: 220px;
+  height: auto;
 }
 
-.form label{display:block;margin:12px 0 6px}
-.form input{width:100%;padding:16px;border-radius:12px;border:1px solid #555;background:#111;color:#fff}
-#stage > div > form > button{
+
+
+.card {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+}
+
+.form label {
+  display: block;
+  margin: 12px 0 6px;
+  font-size: 5em;
+  text-align: center;
+  font-weight: 700;
+}
+.form input {
+  width: 100%;
+  padding: 24px 16px;
+  border-radius: 12px;
+  border: 1px solid #555;
+  color: #000000;
+  font-size: 5em;
+  font-weight: 700;
+  text-align: center;
+}
+#stage > div > form > button {
   position: relative;
   top: 10px;
+  display: block;
+  margin: 24px auto 0;
+  background: #df1b4e;
+  color: #fff;
+  font-size: 3em;
+  font-weight: 700;
+  padding: 20px 48px;
 }
-.btn{display:inline-block;padding:16px 24px;border-radius:12px;border:2px solid var(--color-primary);color:#fff;text-decoration:none}
-.btn-primary{background:var(--color-primary); color:#000; border-color:var(--color-primary); font-weight:700}
+.btn {
+  display: inline-block;
+  padding: 16px 24px;
+  border-radius: 12px;
+  border: 2px solid var(--color-primary);
+  color: #fff;
+  text-decoration: none;
+}
+.btn-primary {
+  background: var(--color-primary);
+  color: #000;
+  border-color: var(--color-primary);
+  font-weight: 700;
+}
 
-.hud{
-  position:absolute;top:var(--safe);left:var(--safe);right:var(--safe);
-  display:flex;justify-content:space-between;align-items:center;gap:16px;background:var(--hud-bg);
-  padding:12px 16px;border-radius:14px
+.hud {
+  position: absolute;
+  top: var(--safe);
+  left: var(--safe);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  background: var(--hud-bg);
+  padding: 12px 16px;
+  border-radius: 14px;
+  z-index: 10;
 }
 .hud__left,
 .hud__center,
@@ -37,27 +112,58 @@ body{font-family:var(--font-family, system-ui, Arial, sans-serif); color:var(--c
   flex: 1;
   text-align: center;
 }
-.hud__label{opacity:.8;font-size:14px;margin-bottom:4px}
-.hud__value{font-size:28px;font-weight:800}
+.hud__label {
+  opacity: 0.8;
+  font-size: 1em;
+  margin-bottom: 4px;
+}
+.hud__value {
+  font-size: 2em;
+  font-weight: 800;
+}
 
-.game-svg{position:absolute;inset:0;width:100%;height:100%}
+.game-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
 
-.control-zone{
-  position:absolute;left:0;right:0;bottom:0;height:40%;
+.control-zone {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 40%;
   /* transparent touch layer */
 }
 
-.top{list-style:none;margin:16px 0 0;padding:0}
-.top li{padding:4px 0;border-bottom:1px solid rgba(255,255,255,.1)}
-.score{font-size:32px}
+.top {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+}
+.top li {
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.score {
+  font-size: 32px;
+}
 
-.hidden{display:none}
+.hidden {
+  display: none;
+}
 
-.game-svg, #control-zone, .screen {
+.game-svg,
+#control-zone,
+.screen {
   touch-action: none;
 }
 
-.screen { position: relative; }
+.screen {
+  position: relative;
+}
 
 /* ==== Scoreboard page ==== */
 .screen--scoreboard {
@@ -71,7 +177,7 @@ body{font-family:var(--font-family, system-ui, Arial, sans-serif); color:var(--c
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.65), rgba(0,0,0,0.85));
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.85));
   mix-blend-mode: multiply;
 }
 .scoreboard__wrap {
@@ -95,20 +201,20 @@ body{font-family:var(--font-family, system-ui, Arial, sans-serif); color:var(--c
 .scoreboard__logo {
   width: 120px;
   height: auto;
-  filter: drop-shadow(0 12px 20px rgba(0,0,0,0.45));
+  filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.45));
 }
 .scoreboard__tagline {
   padding: 10px 16px;
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.25);
-  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.45);
 }
 .scoreboard__card {
   background: rgba(12, 18, 28, 0.74);
   border-radius: 28px;
   padding: 36px;
-  border: 1px solid rgba(255,255,255,0.12);
-  box-shadow: 0 30px 60px rgba(0,0,0,0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
   display: flex;
   flex-direction: column;
   gap: 28px;
@@ -127,7 +233,7 @@ body{font-family:var(--font-family, system-ui, Arial, sans-serif); color:var(--c
   font-size: 72px;
   font-weight: 800;
   color: var(--color-primary);
-  text-shadow: 0 6px 16px rgba(0,0,0,0.5);
+  text-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
 }
 .scoreboard__rank {
   margin-top: 10px;
@@ -140,10 +246,10 @@ body{font-family:var(--font-family, system-ui, Arial, sans-serif); color:var(--c
   color: var(--color-primary);
 }
 .scoreboard__list {
-  background: rgba(0,0,0,0.35);
+  background: rgba(0, 0, 0, 0.35);
   border-radius: 20px;
   padding: 24px;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 .scoreboard__list-head {
   display: flex;
@@ -177,7 +283,7 @@ body{font-family:var(--font-family, system-ui, Arial, sans-serif); color:var(--c
   align-items: center;
   padding: 14px 18px;
   border-radius: 14px;
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.06);
   font-size: 20px;
   letter-spacing: 0.01em;
   backdrop-filter: blur(4px);
@@ -185,8 +291,8 @@ body{font-family:var(--font-family, system-ui, Arial, sans-serif); color:var(--c
 }
 .leaderboard__row--player {
   border: 1px solid var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(255,215,0,0.15);
-  background: rgba(255,215,0,0.15);
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.15);
+  background: rgba(255, 215, 0, 0.15);
 }
 .leaderboard__row--spacer {
   grid-template-columns: 1fr;
@@ -199,7 +305,7 @@ body{font-family:var(--font-family, system-ui, Arial, sans-serif); color:var(--c
 .leaderboard__row--empty {
   grid-template-columns: 1fr;
   justify-items: center;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
 }
 .leaderboard__rank,
 .leaderboard__name,
@@ -239,7 +345,6 @@ body{font-family:var(--font-family, system-ui, Arial, sans-serif); color:var(--c
   font-weight: 700;
 }
 
-
 /* ==== Bomb feedback styles ==== */
 
 /* 1) HUD flash merah singkat */
@@ -249,42 +354,62 @@ body{font-family:var(--font-family, system-ui, Arial, sans-serif); color:var(--c
 }
 
 /* 2) Cart shake */
-.game-svg image { 
+.game-svg image {
   /* agar transform di-apply ke ukuran elemen, penting untuk SVG <image> */
-  transform-box: fill-box; 
+  transform-box: fill-box;
   transform-origin: 50% 50%;
 }
 .cart-hit {
   animation: cart-shake 160ms ease;
 }
 @keyframes cart-shake {
-  0%   { transform: translateX(0); }
-  25%  { transform: translateX(-12px); }
-  50%  { transform: translateX(12px); }
-  75%  { transform: translateX(-8px); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-12px);
+  }
+  50% {
+    transform: translateX(12px);
+  }
+  75% {
+    transform: translateX(-8px);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 /* 3) Skor delta (badge melayang) */
 .score-delta {
   position: absolute;
-  left: 50%;
   transform: translateX(-50%);
-  top: calc(var(--safe, 24px) + 8px); /* dekat HUD */
   font-size: 28px;
   font-weight: 800;
-  color: #ff4d4f; /* merah penalty */
+  color: #ff4d4f;
   opacity: 0;
   pointer-events: none;
   transition: none;
+  z-index: 20;
 }
 .score-delta.show {
   animation: score-float 550ms ease-out forwards;
 }
 @keyframes score-float {
-  0%   { opacity: 0; transform: translate(-50%, 0) scale(0.9); }
-  10%  { opacity: 1; transform: translate(-50%, -6px) scale(1.0); }
-  60%  { opacity: 1; transform: translate(-50%, -26px) scale(0.98); }
-  100% { opacity: 0; transform: translate(-50%, -48px) scale(0.95); }
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.9);
+  }
+  10% {
+    opacity: 1;
+    transform: translate(-50%, -6px) scale(1);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(-50%, -26px) scale(0.98);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -48px) scale(0.95);
+  }
 }
-

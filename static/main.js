@@ -32,31 +32,27 @@
 
   // Anti accidental zoom/scroll in kiosk
   // (CSS should also disable overscroll; this is extra guard)
+  function onGestureStart(e) {
+    e.preventDefault();
+    document.body.style.zoom = 1;
+  }
+  function onWheel(e) {
+    if (e.ctrlKey) e.preventDefault();
+  }
+  function onTouchMove(e) {
+    if (!e.target.closest("#control-zone")) e.preventDefault();
+  }
+
   function lockPageGestures() {
-    window.addEventListener(
-      "gesturestart",
-      (e) => {
-        e.preventDefault();
-        document.body.style.zoom = 1;
-      },
-      { passive: false }
-    );
-    window.addEventListener(
-      "wheel",
-      (e) => {
-        if (e.ctrlKey) e.preventDefault();
-      },
-      { passive: false }
-    );
-    document.addEventListener(
-      "touchmove",
-      (e) => {
-        // allow moves inside our control zone only (we'll attach listeners there)
-        // otherwise prevent scroll
-        if (!e.target.closest("#control-zone")) e.preventDefault();
-      },
-      { passive: false }
-    );
+    window.addEventListener("gesturestart", onGestureStart, { passive: false });
+    window.addEventListener("wheel", onWheel, { passive: false });
+    document.addEventListener("touchmove", onTouchMove, { passive: false });
+  }
+
+  function unlockPageGestures() {
+    window.removeEventListener("gesturestart", onGestureStart);
+    window.removeEventListener("wheel", onWheel);
+    document.removeEventListener("touchmove", onTouchMove);
   }
 
   // --------------------------
@@ -126,7 +122,8 @@ async function initGamePage() {
       src: String(x.src || ""),
       label: x.label || "",
       weight: Number(x.weight ?? 1),
-      size: Number(x.size ?? 128),
+      width: Number(x.width ?? x.size ?? 128),
+      height: Number(x.height ?? x.size ?? 128),
       speedMul: Number(x.speedMul ?? 1),
       score: Number(x.score ?? defaultScore),
     };
@@ -138,7 +135,8 @@ async function initGamePage() {
       src: String(x.src || ""),
       label: x.label || "Bomb",
       weight: Number(x.weight ?? 1),
-      size: Number(x.size ?? 128),
+      width: Number(x.width ?? x.size ?? 128),
+      height: Number(x.height ?? x.size ?? 128),
       speedMul: Number(x.speedMul ?? 1),
       penalty: Number(x.penalty ?? defaultPenalty),
     };
@@ -153,7 +151,7 @@ async function initGamePage() {
   }
 
   // ---- Preload semua gambar (URL string)
-  const preloadTargets = [cartSrc, ...candidates.map(c => c.src)].filter(Boolean);
+  const preloadTargets = [cartSrc, ...candidates.map(candidate => candidate.src)].filter(Boolean);
   await Promise.allSettled(preloadTargets.map(preloadImage));
 
   // ---- Cart (1:1 box + image fit)
@@ -182,8 +180,8 @@ async function initGamePage() {
 
   function moveCartToClientX(clientX) {
     const rect = svg.getBoundingClientRect();
-    const rel = (clientX - rect.left) / rect.width; // 0..1
-    const centerX = rel * VB_WIDTH;
+    const normalizedX = (clientX - rect.left) / rect.width; // 0..1
+    const centerX = normalizedX * VB_WIDTH;
     cartBoxX = clamp(centerX - CART_BOX_SIZE / 2, 0, VB_WIDTH - CART_BOX_SIZE);
     layoutCart();
   }
@@ -191,7 +189,7 @@ async function initGamePage() {
   // ---- Pool & active objects (pakai ukuran per item)
   const MAX_ITEMS = 64;
   const pool = [];
-  const active = []; // {el, x, y, w, h, vy, isBomb, score, penalty}
+  const activeItems = []; // {el, x, y, width, height, velocityY, isBomb, score, penalty}
 
   function createItemEl() {
     const el = document.createElementNS(SVG_NS, "image");
@@ -211,39 +209,39 @@ async function initGamePage() {
   }
 
   function pickWeighted(arr) {
-    const total = arr.reduce((s, a) => s + (a.weight || 0), 0);
-    if (total <= 0) return arr[0];
-    let r = Math.random() * total;
-    for (const a of arr) {
-      r -= a.weight || 0;
-      if (r <= 0) return a;
+    const totalWeight = arr.reduce((sum, entry) => sum + (entry.weight || 0), 0);
+    if (totalWeight <= 0) return arr[0];
+    let remaining = Math.random() * totalWeight;
+    for (const entry of arr) {
+      remaining -= entry.weight || 0;
+      if (remaining <= 0) return entry;
     }
     return arr[arr.length - 1];
   }
 
   function spawnItem() {
     if (!candidates.length) return;
-    if (active.length >= MAX_ITEMS) return;
+    if (activeItems.length >= MAX_ITEMS) return;
 
-    const c = pickWeighted(candidates);
+    const candidate = pickWeighted(candidates);
     const el = acquireItem();
-    setImageHref(el, c.src);
+    setImageHref(el, candidate.src);
 
-    const W = c.size;
-    const H = c.size;
+    const itemWidth = candidate.width;
+    const itemHeight = candidate.height;
 
-    const x = Math.random() * (VB_WIDTH - W);
-    const y = -H - 20;
+    const spawnX = Math.random() * (VB_WIDTH - itemWidth);
+    const spawnY = -itemHeight - 20;
 
-    const base = 300 + Math.random() * 120; // basis kecepatan
-    const vy = base * globalSpeed * (c.speedMul || 1);
+    const baseSpeed = 300 + Math.random() * 120;
+    const velocityY = baseSpeed * globalSpeed * (candidate.speedMul || 1);
 
-    el.setAttribute("x", String(x));
-    el.setAttribute("y", String(y));
-    el.setAttribute("width", String(W));
-    el.setAttribute("height", String(H));
+    el.setAttribute("x", String(spawnX));
+    el.setAttribute("y", String(spawnY));
+    el.setAttribute("width", String(itemWidth));
+    el.setAttribute("height", String(itemHeight));
 
-    if (c.kind === "bomb") {
+    if (candidate.kind === "bomb") {
       el.setAttribute("data-bomb", "1");
     } else {
       el.removeAttribute("data-bomb");
@@ -251,11 +249,11 @@ async function initGamePage() {
 
     svg.appendChild(el);
 
-    active.push({
-      el, x, y, w: W, h: H, vy,
-      isBomb: c.kind === "bomb",
-      score: c.score ?? 0,
-      penalty: c.penalty ?? 0,
+    activeItems.push({
+      el, x: spawnX, y: spawnY, width: itemWidth, height: itemHeight, velocityY,
+      isBomb: candidate.kind === "bomb",
+      score: candidate.score ?? 0,
+      penalty: candidate.penalty ?? 0,
     });
   }
 
@@ -269,10 +267,10 @@ const HIT_TOL = 12; // toleransi hit cart (px koordinat viewBox)
 // hit-test: apakah pointerdown dimulai di area cart (dengan toleransi)
 function isPointerOnCart(clientX, clientY) {
   const rect = svg.getBoundingClientRect(); // selalu pakai rect SVG
-  const relX = (clientX - rect.left) / rect.width;   // 0..1
-  const relY = (clientY - rect.top) / rect.height;   // 0..1
-  const x = relX * VB_WIDTH;
-  const y = relY * VB_HEIGHT;
+  const normalizedX = (clientX - rect.left) / rect.width;   // 0..1
+  const normalizedY = (clientY - rect.top) / rect.height;   // 0..1
+  const x = normalizedX * VB_WIDTH;
+  const y = normalizedY * VB_HEIGHT;
   return (
     x >= (cartBoxX - HIT_TOL) &&
     x <= (cartBoxX + CART_BOX_SIZE + HIT_TOL) &&
@@ -304,8 +302,8 @@ function onPointerDown(e) {
 
   // hitung grip offset supaya tidak lompat
   const rect = svg.getBoundingClientRect();
-  const relX = (e.clientX - rect.left) / rect.width;
-  const pointerX = relX * VB_WIDTH;
+  const normalizedX = (e.clientX - rect.left) / rect.width;
+  const pointerX = normalizedX * VB_WIDTH;
   const cartCenterX = cartBoxX + CART_BOX_SIZE / 2;
   gripOffsetX = pointerX - cartCenterX;
 
@@ -324,8 +322,8 @@ function onPointerMove(e) {
   e.preventDefault();
 
   const rect = svg.getBoundingClientRect();
-  const relX = (e.clientX - rect.left) / rect.width;
-  const pointerX = relX * VB_WIDTH;
+  const normalizedX = (e.clientX - rect.left) / rect.width;
+  const pointerX = normalizedX * VB_WIDTH;
 
   const desiredCenterX = pointerX - gripOffsetX;
   moveCartCenterTo(desiredCenterX);
@@ -365,8 +363,17 @@ function onPointerUp(e) {
     const text = amount > 0 ? `+${amount}` : `${amount}`;
     scoreDeltaEl.textContent = text;
     scoreDeltaEl.style.color = amount < 0 ? "#ff4d4f" : "#66ff66";
+
+    // posisi mengikuti cart
+    const rect = svg.getBoundingClientRect();
+    const scaleX = rect.width / VB_WIDTH;
+    const scaleY = rect.height / VB_HEIGHT;
+    const cartCenterClientX = rect.left + (cartBoxX + CART_BOX_SIZE / 2) * scaleX;
+    const cartTopClientY = rect.top + (cartBoxY - 60) * scaleY;
+    scoreDeltaEl.style.left = `${cartCenterClientX}px`;
+    scoreDeltaEl.style.top = `${cartTopClientY}px`;
+
     scoreDeltaEl.classList.remove("show");
-    // force reflow
     // eslint-disable-next-line no-unused-expressions
     scoreDeltaEl.offsetWidth;
     scoreDeltaEl.classList.add("show");
@@ -376,9 +383,10 @@ function onPointerUp(e) {
   let running = true;
   let score = 0;
   let remaining = durationSec;
-  let spawnAcc = 0;
+  let spawnAccumulator = 0;
   const spawnInterval = 1 / spawnRate;
-  let lastT = performance.now();
+  let lastFrameTime = performance.now();
+  let rafId = 0;
 
   scoreEl.textContent = "0";
   timerEl.textContent = String(remaining);
@@ -390,62 +398,63 @@ function onPointerUp(e) {
     if (remaining <= 0) endGame();
   }, 1000);
 
-  document.addEventListener("visibilitychange", () => {
+  function onVisibilityChange() {
     if (document.hidden) {
       running = false;
     } else if (remaining > 0) {
-      lastT = performance.now();
+      lastFrameTime = performance.now();
       running = true;
-      requestAnimationFrame(loop);
+      rafId = requestAnimationFrame(loop);
     }
-  });
+  }
+  document.addEventListener("visibilitychange", onVisibilityChange);
 
-  requestAnimationFrame(loop);
+  rafId = requestAnimationFrame(loop);
 
-  function loop(t) {
+  function loop(timestamp) {
     if (!running) return;
-    const dt = Math.min((t - lastT) / 1000, 0.033);
-    lastT = t;
+    const deltaTime = Math.min((timestamp - lastFrameTime) / 1000, 0.033);
+    lastFrameTime = timestamp;
 
     // Spawn logic
-    spawnAcc += dt;
-    while (spawnAcc >= spawnInterval) {
-      spawnAcc -= spawnInterval;
+    spawnAccumulator += deltaTime;
+    while (spawnAccumulator >= spawnInterval) {
+      spawnAccumulator -= spawnInterval;
       spawnItem();
     }
 
     // Move items & collisions
-    for (let i = active.length - 1; i >= 0; i--) {
-      const it = active[i];
-      it.y += it.vy * dt;
-      it.el.setAttribute("y", String(it.y));
+    for (let i = activeItems.length - 1; i >= 0; i--) {
+      const item = activeItems[i];
+      item.y += item.velocityY * deltaTime;
+      item.el.setAttribute("y", String(item.y));
 
       // Collision (AABB) terhadap cart box 1:1
-      if (aabb(it.x, it.y, it.w, it.h, cartBoxX, cartBoxY, CART_BOX_SIZE, CART_BOX_SIZE)) {
-        if (it.isBomb) {
-          const penalty = it.penalty || defaultPenalty;
+      if (aabb(item.x, item.y, item.width, item.height, cartBoxX, cartBoxY, CART_BOX_SIZE, CART_BOX_SIZE)) {
+        if (item.isBomb) {
+          const penalty = item.penalty || defaultPenalty;
           score = Math.max(0, score - penalty);
           flashHudForBomb(); shakeCart(); showScoreDelta(-penalty);
         } else {
-          const gain = it.score || defaultScore;
+          const gain = item.score || defaultScore;
           score += gain;
           showScoreDelta(+gain);
         }
         scoreEl.textContent = String(score);
 
-        releaseItem(it.el);
-        active.splice(i, 1);
+        releaseItem(item.el);
+        activeItems.splice(i, 1);
         continue;
       }
 
       // Out of screen
-      if (it.y > VB_HEIGHT + it.h) {
-        releaseItem(it.el);
-        active.splice(i, 1);
+      if (item.y > VB_HEIGHT + item.height) {
+        releaseItem(item.el);
+        activeItems.splice(i, 1);
       }
     }
 
-    requestAnimationFrame(loop);
+    rafId = requestAnimationFrame(loop);
   }
 
   function aabb(ax, ay, aw, ah, bx, by, bw, bh) {
@@ -457,10 +466,13 @@ function onPointerUp(e) {
     if (!running) return;
     running = false;
     clearInterval(timerId);
+    cancelAnimationFrame(rafId);
+    document.removeEventListener("visibilitychange", onVisibilityChange);
+    unlockPageGestures();
 
-    while (active.length) {
-      const it = active.pop();
-      if (it) releaseItem(it.el);
+    while (activeItems.length) {
+      const item = activeItems.pop();
+      if (item) releaseItem(item.el);
     }
 
     finishScore.value = String(score);
@@ -468,15 +480,15 @@ function onPointerUp(e) {
   }
 
   // ---- Operator panic reset (long-press top-right corner 3s)
-  let pressT = 0;
+  let panicPressTimestamp = 0;
   document.addEventListener("pointerdown", (e) => {
-    const w = window.innerWidth;
-    const atTopRight = e.clientX > w - 100 && e.clientY < 100;
-    if (atTopRight) pressT = Date.now();
+    const screenWidth = window.innerWidth;
+    const atTopRight = e.clientX > screenWidth - 100 && e.clientY < 100;
+    if (atTopRight) panicPressTimestamp = Date.now();
   });
   document.addEventListener("pointerup", () => {
-    if (pressT && Date.now() - pressT > 3000) window.location.href = "/";
-    pressT = 0;
+    if (panicPressTimestamp && Date.now() - panicPressTimestamp > 3000) window.location.href = "/";
+    panicPressTimestamp = 0;
   });
 }
 })();

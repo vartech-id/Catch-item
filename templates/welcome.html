@@ -4,31 +4,29 @@
   style="background-image:url('{{ cfg.branding.backgrounds.welcome }}')"
 >
   <div class="logo-wrap">
-    <img class="logo" src="{{ cfg.branding.logo }}" alt="Logo" />
+    <!-- <img class="logo" src="{{ cfg.branding.logo }}" alt="Logo" /> -->
   </div>
   <form class="card form" method="post" action="/start" autocomplete="off">
-    <label>Nama</label>
+    <label>Name</label>
     <input
       type="text"
       id="name"
       name="name"
       required
-      placeholder="Nama anda"
       pattern="[A-Za-z\s]+"
       title="Nama hanya boleh mengandung huruf dan spasi."
     />
-    <label>No. HP</label>
+    <label>Phone Number</label>
     <input
       type="tel"
       id="phone"
       name="phone"
       required
-      placeholder="08xx..."
       inputmode="tel"
       pattern="[0-9]+"
       title="Hanya masukkan angka (0-9) untuk Nomor HP."
     />
-    <button type="submit" class="btn btn-primary submit-button">Start</button>
+    <button type="submit" class="btn btn-primary submit-button">Register</button>
   </form>
 </div>
 {% endblock %}
