@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Panel — Catch Item</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, Arial, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    header h1 { font-size: 1.5rem; font-weight: 700; color: #fff; }
+    .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: #df1b4e; color: #fff; }
+    .btn-success { background: #38a169; color: #fff; }
+    .btn-home { background: #4a5568; color: #fff; }
+
+    .toast {
+      background: #38a169;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      display: none;
+    }
+    .toast.show { display: block; }
+
+    .card {
+      background: #1a202c;
+      border-radius: 12px;
+      padding: 24px;
+      border: 1px solid #2d3748;
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #fff;
+      border-bottom: 1px solid #2d3748;
+      padding-bottom: 10px;
+    }
+
+    #config-textarea {
+      width: 100%;
+      min-height: 420px;
+      background: #0f1117;
+      color: #a8d8a8;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      resize: vertical;
+      outline: none;
+      cursor: default;
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .field-group { display: flex; flex-direction: column; gap: 4px; }
+
+    .field-group label {
+      font-size: 0.8rem;
+      color: #a0aec0;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .field-group small {
+      font-size: 0.75rem;
+      color: #718096;
+      line-height: 1.4;
+      margin-bottom: 4px;
+    }
+
+    .field-group input[type="number"],
+    .field-group input[type="text"],
+    .field-group select {
+      background: #0f1117;
+      border: 1px solid #2d3748;
+      border-radius: 6px;
+      color: #e2e8f0;
+      padding: 8px 12px;
+      font-size: 0.95rem;
+      outline: none;
+      width: 100%;
+    }
+    .field-group input:focus,
+    .field-group select:focus { border-color: #df1b4e; }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th {
+      background: #2d3748;
+      color: #a0aec0;
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    td { padding: 10px 14px; border-bottom: 1px solid #2d3748; color: #e2e8f0; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #2d3748; }
+
+    .rank-badge {
+      display: inline-block;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #2d3748;
+      text-align: center;
+      line-height: 28px;
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+    .rank-1 { background: #d4af37; color: #000; }
+    .rank-2 { background: #a8a9ad; color: #000; }
+    .rank-3 { background: #cd7f32; color: #000; }
+
+    @media (max-width: 600px) {
+      .quick-grid { grid-template-columns: 1fr 1fr; }
+      header h1 { font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <h1>⚙️ Admin Panel</h1>
+      <div class="header-actions">
+        <a href="/admin/export" class="btn btn-success">⬇️ Export Excel</a>
+        <a href="/" class="btn btn-home">🏠 Home</a>
+      </div>
+    </header>
+
+    {% if request.query_params.get('saved') %}
+    <div class="toast show">✅ Config saved successfully!</div>
+    {% endif %}
+
+    <!-- hidden form for save -->
+    <form method="post" action="/admin/save-config" id="config-form" style="display:none;">
+      <textarea name="config" id="config-hidden"></textarea>
+    </form>
+
+    <!-- Quick Controls -->
+    <div class="card">
+      <h2>🎮 Game Mechanics</h2>
+      <div class="quick-grid">
+
+        <div class="field-group">
+          <label>Duration (seconds)</label>
+          <small>Durasi permainan dalam detik. Contoh: 60 = 1 menit, 120 = 2 menit.</small>
+          <input type="number" id="q-duration" min="10" max="999999" step="1">
+        </div>
+
+        <div class="field-group">
+          <label>Spawn Rate (items/sec)</label>
+          <small>Jumlah item yang muncul per detik. Makin tinggi = makin ramai dan susah. Rekomendasi: 1.0 – 2.5.</small>
+          <input type="number" id="q-spawnrate" min="0.1" max="10" step="0.1">
+        </div>
+
+        <div class="field-group">
+          <label>Speed Multiplier</label>
+          <small>Pengali kecepatan jatuhnya item. 1.0 = normal, 2.0 = 2x lebih cepat. Makin tinggi = makin susah.</small>
+          <input type="number" id="q-speed" min="0.1" max="5" step="0.1">
+        </div>
+
+        <div class="field-group">
+          <label>Cart Box Size (px)</label>
+          <small>Ukuran hitbox keranjang dalam koordinat game. Makin besar = lebih mudah menangkap item.</small>
+          <input type="number" id="q-cartsize" min="100" max="600" step="10">
+        </div>
+
+        <div class="field-group">
+          <label>Auto Return (seconds)</label>
+          <small>Detik sebelum halaman scoreboard otomatis kembali ke welcome. Set 999999 untuk nonaktifkan.</small>
+          <input type="number" id="q-autoreturn" min="5" max="999999" step="1">
+        </div>
+
+        <div class="field-group">
+          <label>Countdown</label>
+          <small>Tampilkan hitung mundur 3-2-1 sebelum game dimulai. Direkomendasikan aktif.</small>
+          <select id="q-countdown">
+            <option value="true">Enabled — Tampilkan countdown</option>
+            <option value="false">Disabled — Langsung mulai</option>
+          </select>
+        </div>
+
+      </div>
+      <div style="margin-top:20px;">
+        <button class="btn btn-primary" onclick="applyAndSave()">💾 Apply & Save</button>
+      </div>
+    </div>
+
+    <!-- Config JSON (Read Only) -->
+    <div class="card">
+      <h2>📝 Config JSON (Read Only)</h2>
+      <textarea id="config-textarea" spellcheck="false" readonly>{{ cfg_raw }}</textarea>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="card">
+      <h2>🏆 Leaderboard</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Name</th>
+              <th>Score</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard-body">
+            <tr><td colspan="5" style="text-align:center;color:#a0aec0;">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    async function loadLeaderboard() {
+      const res = await fetch("/top");
+      const entries = await res.json();
+      const tbody = document.getElementById("leaderboard-body");
+      if (!entries.length) {
+        tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;color:#a0aec0;'>No scores yet.</td></tr>";
+        return;
+      }
+      tbody.innerHTML = entries.map(e => `
+        <tr>
+          <td><span class="rank-badge rank-${e.rank}">${e.rank}</span></td>
+          <td>${e.name}</td>
+          <td><strong>${e.score}</strong></td>
+          <td style="color:#a0aec0;font-size:0.8rem;">${e.created_at}</td>
+        </tr>
+      `).join("");
+    }
+    loadLeaderboard();
+
+    function getConfig() {
+      try { return JSON.parse(document.getElementById("config-textarea").value); }
+      catch { return null; }
+    }
+
+    function syncQuickControls() {
+      const cfg = getConfig();
+      if (!cfg) return;
+      document.getElementById("q-duration").value = cfg?.gameplay?.duration ?? 60;
+      document.getElementById("q-spawnrate").value = cfg?.gameplay?.spawnRate ?? 1.8;
+      document.getElementById("q-speed").value = cfg?.gameplay?.speed ?? 1.0;
+      document.getElementById("q-cartsize").value = cfg?.graphics?.cartBoxSize ?? 250;
+      document.getElementById("q-autoreturn").value = cfg?.ux?.autoReturnSeconds ?? 999999;
+      document.getElementById("q-countdown").value = String(cfg?.ux?.countdown ?? true);
+    }
+    syncQuickControls();
+
+    function applyAndSave() {
+      const cfg = getConfig();
+      if (!cfg) { alert("Config JSON tidak valid."); return; }
+
+      cfg.gameplay = cfg.gameplay || {};
+      cfg.gameplay.duration = Number(document.getElementById("q-duration").value);
+      cfg.gameplay.spawnRate = Number(document.getElementById("q-spawnrate").value);
+      cfg.gameplay.speed = Number(document.getElementById("q-speed").value);
+      cfg.graphics = cfg.graphics || {};
+      cfg.graphics.cartBoxSize = Number(document.getElementById("q-cartsize").value);
+      cfg.ux = cfg.ux || {};
+      cfg.ux.autoReturnSeconds = Number(document.getElementById("q-autoreturn").value);
+      cfg.ux.countdown = document.getElementById("q-countdown").value === "true";
+
+      const updated = JSON.stringify(cfg, null, 2);
+      document.getElementById("config-textarea").value = updated;
+      document.getElementById("config-hidden").value = updated;
+      document.getElementById("config-form").submit();
+    }
+  </script>
+</body>
+</html>

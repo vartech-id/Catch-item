@@ -85,7 +85,7 @@ class ScoreStore:
     def push(self, name: str, score: int, phone: Optional[str] = None) -> int:
         clean_name = (name or "Player").strip() or "Player"
         clean_phone = phone.strip() if isinstance(phone, str) else None
-        ts = datetime.utcnow().isoformat(timespec="seconds")
+        ts = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
         with self._connect() as conn:
             cur = conn.execute(
                 """

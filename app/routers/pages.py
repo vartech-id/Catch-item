@@ -1,9 +1,13 @@
 # app/routers/pages.py
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from html import escape
+from io import BytesIO
+from pathlib import Path
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment
 
 router = APIRouter()
 
@@ -99,56 +103,57 @@ def scoreboard(request: Request):
     )
 
 
-@router.get("/admin")
-def export_scores(request: Request):
-    score_service = request.app.state.scores
-    entries = score_service.all_with_rank()
-    timestamp = datetime.utcnow().strftime("%Y%m%d-%H%M%S")
-
-    table_rows = []
-    if entries:
-        for entry in entries:
-            table_rows.append(
-                "<tr>"
-                f"<td>{entry.rank}</td>"
-                f"<td>{escape(entry.name)}</td>"
-                f"<td>{escape(entry.phone or '')}</td>"
-                f"<td>{entry.score}</td>"
-                f"<td>{escape(entry.created_at)}</td>"
-                "</tr>"
-            )
-    else:
-        table_rows.append(
-            "<tr><td colspan='5' style='text-align:center'>No scores recorded yet.</td></tr>"
-        )
-
-    html_table = (
-        "<html><head>"
-        "<meta charset='utf-8'/>"
-        "<style>"
-        "body{font-family:Arial,Helvetica,sans-serif;}"
-        "table{border-collapse:collapse;width:100%;}"
-        "th,td{border:1px solid #333;padding:8px;text-align:left;}"
-        "th{background:#222;color:#fff;}"
-        "</style>"
-        "</head><body>"
-        f"<h1>Catch Item Leaderboard Export</h1>"
-        f"<p>Generated at {escape(datetime.utcnow().isoformat(timespec='seconds'))} UTC</p>"
-        "<table>"
-        "<thead><tr>"
-        "<th>Rank</th><th>Name</th><th>Phone</th><th>Score</th><th>Recorded At (UTC)</th>"
-        "</tr></thead>"
-        "<tbody>"
-        + "".join(table_rows)
-        + "</tbody></table>"
-        "</body></html>"
+@router.get("/admin", response_class=HTMLResponse)
+def admin_panel(request: Request):
+    templates = request.app.state.templates
+    base = Path(__file__).resolve().parents[2]
+    with (base / "config.json").open("r", encoding="utf-8") as f:
+        cfg_raw = f.read()
+    return templates.TemplateResponse(
+        "admin.html",
+        {"request": request, "cfg_raw": cfg_raw, "page": "admin"},
     )
 
-    headers = {
-        "Content-Disposition": f"attachment; filename=leaderboard-{timestamp}.xls"
-    }
+
+@router.get("/admin/export")
+def admin_export(request: Request):
+    score_service = request.app.state.scores
+    entries = score_service.all_with_rank()
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Leaderboard"
+
+    # Header style
+    header_font = Font(bold=True, color="FFFFFF")
+    header_fill = PatternFill(fill_type="solid", fgColor="222222")
+    header_align = Alignment(horizontal="center")
+
+    headers = ["Rank", "Name", "Phone", "Score", "Recorded At (UTC)"]
+    col_widths = [8, 30, 20, 12, 25]
+
+    for col, (header, width) in enumerate(zip(headers, col_widths), start=1):
+        cell = ws.cell(row=1, column=col, value=header)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = header_align
+        ws.column_dimensions[cell.column_letter].width = width
+
+    for row, entry in enumerate(entries, start=2):
+        ws.cell(row=row, column=1, value=entry.rank)
+        ws.cell(row=row, column=2, value=entry.name)
+        ws.cell(row=row, column=3, value=entry.phone or "")
+        ws.cell(row=row, column=4, value=entry.score)
+        ws.cell(row=row, column=5, value=entry.created_at + " WIB")
+
+    buffer = BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+
+    headers_resp = {"Content-Disposition": f"attachment; filename=leaderboard-{timestamp}.xlsx"}
     return Response(
-        content=html_table,
-        media_type="application/vnd.ms-excel",
-        headers=headers,
+        content=buffer.read(),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers=headers_resp,
     )

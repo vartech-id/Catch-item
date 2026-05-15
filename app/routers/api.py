@@ -11,13 +11,25 @@ router = APIRouter()
 @router.get("/config")
 def get_config(request: Request):
     try:
-        base = Path(__file__).resolve().parents[2]  # root proyek
+        base = Path(__file__).resolve().parents[2]
         with (base / "config.json").open("r", encoding="utf-8") as f:
             data = json.load(f)
         return JSONResponse(data, headers={"Cache-Control": "no-store"})
     except Exception:
-        # fallback kalau gagal parsing
         return JSONResponse(request.app.state.cfg, headers={"Cache-Control": "no-store"})
+
+
+@router.post("/admin/save-config")
+async def save_config(request: Request, config: str = Form(...)):
+    try:
+        parsed = json.loads(config)
+        base = Path(__file__).resolve().parents[2]
+        with (base / "config.json").open("w", encoding="utf-8") as f:
+            json.dump(parsed, f, indent=2, ensure_ascii=False)
+        request.app.state.cfg = parsed
+        return RedirectResponse(url="/admin?saved=1", status_code=303)
+    except json.JSONDecodeError as e:
+        return JSONResponse({"error": f"Invalid JSON: {e}"}, status_code=400)
 
 @router.get("/top")
 def get_top(request: Request):
