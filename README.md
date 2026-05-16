@@ -95,6 +95,33 @@ catch-item/
 - Lokasi: `assets/cart/`
 - File default: `cart.png`
 - Ganti dengan gambar keranjang Anda dan sesuaikan path di `config.json`
+- Resolusi asset yang disarankan: **540x540px** (1:1 square, PNG transparan)
+
+#### Mengatur Ukuran dan Posisi Visual Keranjang
+
+**Membesarkan gambar** — ubah `cartImgScale` di `config.json`:
+```json
+"cartImgScale": 1.2
+```
+- `0.9` = 90% dari hitbox (default)
+- `1.0` = sama persis dengan hitbox
+- `1.2` = 20% lebih besar dari hitbox
+
+**Menurunkan posisi visual** — ubah offset Y di `static/main.js`, cari fungsi `layoutCart()`:
+```js
+// Sebelum
+const imgY = cartBoxY + (CART_BOX_SIZE - cartImgH) / 2;
+
+// Sesudah (turunkan 30px)
+const imgY = cartBoxY + (CART_BOX_SIZE - cartImgH) / 2 + 30;
+```
+Naikkan angka offset untuk menurunkan gambar lebih jauh. Hitbox tidak terpengaruh.
+
+**Mengatur ukuran hitbox** — ubah `cartBoxSize` di `config.json`:
+```json
+"cartBoxSize": 250
+```
+Makin besar = hitbox lebih lebar, lebih mudah menangkap item.
 
 ### Item dan Bom
 - Lokasi: `assets/items/`

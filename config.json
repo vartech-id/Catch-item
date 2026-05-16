@@ -8,7 +8,7 @@
     "logo": "/assets/logo/event-logo.png"
   },
   "graphics": {
-    "cart": "/assets/cart/cart.png",
+    "cart": "/assets/cart/cat.png",
     "items": [
       {
         "src": "/assets/items/greenchicken-flavour.png",
@@ -59,7 +59,7 @@
       }
     ],
     "cartBoxSize": 180,
-    "cartImgScale": 0.9
+    "cartImgScale": 2
   },
   "theme": {
     "colors": {

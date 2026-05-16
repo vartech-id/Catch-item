@@ -171,7 +171,7 @@ async function initGamePage() {
 
   function layoutCart() {
     const imgX = cartBoxX + (CART_BOX_SIZE - cartImgW) / 2;
-    const imgY = cartBoxY + (CART_BOX_SIZE - cartImgH) / 2;
+    const imgY = cartBoxY + (CART_BOX_SIZE - cartImgH) / 2 + 10;
     cartEl.setAttribute("x", String(imgX));
     cartEl.setAttribute("y", String(imgY));
     cartEl.setAttribute("width", String(cartImgW));
