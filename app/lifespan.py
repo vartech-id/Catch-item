@@ -10,7 +10,7 @@ DEFAULT_CFG = {
         "backgrounds": {
             "welcome": "/assets/backgrounds/welcome.png",
             "game": "/assets/backgrounds/game.png",
-            "scoreboard": "/assets/background/scoreboard.png",
+            "scoreboard": "/assets/backgrounds/scoreboard.png",
         },
         "logo": "/assets/logo/event-logo.png",
     },

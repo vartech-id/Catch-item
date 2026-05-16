@@ -3,28 +3,85 @@
     "backgrounds": {
       "welcome": "/assets/backgrounds/welcome.png",
       "game": "/assets/backgrounds/game.png",
-      "scoreboard": "/assets/background/scoreboard.png"
+      "scoreboard": "/assets/backgrounds/scoreboard.png"
     },
     "logo": "/assets/logo/event-logo.png"
   },
-"graphics": {
-  "cart": "/assets/cart/cart.png",
-  "items": [
-    { "src": "/assets/items/item1.png", "label":"Brand A", "score":100, "weight":1, "speedMul":1.8, "size":128 },
-    { "src": "/assets/items/item2.png", "label":"Umum",    "score":20, "weight":2, "speedMul":1.0, "size":128 },
-    { "src": "/assets/items/item3.png", "label":"biasa",    "score":10, "weight":2, "speedMul":1.0, "size":128 }
-  ],
-  "bombs": [
-    { "src": "/assets/items/bomb.png", "label":"Bomb", "penalty":10, "weight":10, "speedMul":1.5, "size":140 }
-  ],
-  "cartBoxSize": 250,
-  "cartImgScale": 0.9
-},
-  "theme": { "colors": { "primary": "#FFD700", "text": "#FFFFFF", "hudBg": "rgba(0,0,0,0.35)" }, "layout": { "safeMargin": 24 } },
-  "gameplay": { 
-    "mode": "timer", 
-    "duration": 60, 
-    "spawnRate": 1.8,
-    "speed": 1.0 }, 
-  "ux": { "countdown": true, "autoReturnSeconds": 999999, "sfx": false }
+  "graphics": {
+    "cart": "/assets/cart/cat.png",
+    "items": [
+      {
+        "src": "/assets/items/greenchicken-flavour.png",
+        "label": "Chicken Flavour",
+        "score": 100,
+        "weight": 2,
+        "speedMul": 1,
+        "width": 125,
+        "height": 200
+      },
+      {
+        "src": "/assets/items/oceanfish-flavour.png",
+        "label": "Ocean Fish Flavour",
+        "score": 80,
+        "weight": 2,
+        "speedMul": 1,
+        "width": 125,
+        "height": 200
+      },
+      {
+        "src": "/assets/items/redchicken-flavour.png",
+        "label": "Red Chicken Flavour",
+        "score": 80,
+        "weight": 2,
+        "speedMul": 1,
+        "width": 125,
+        "height": 200
+      },
+      {
+        "src": "/assets/items/tuna-flavour.png",
+        "label": "Tuna Flavour",
+        "score": 80,
+        "weight": 2,
+        "speedMul": 1,
+        "width": 125,
+        "height": 200
+      }
+    ],
+    "bombs": [
+      {
+        "src": "/assets/items/bomb.png",
+        "label": "Bomb",
+        "penalty": 50,
+        "weight": 6,
+        "speedMul": 1.5,
+        "width": 125,
+        "height": 125
+      }
+    ],
+    "cartBoxSize": 250,
+    "cartImgScale": 2
+  },
+  "theme": {
+    "colors": {
+      "primary": "#FFD700",
+      "text": "#FFFFFF",
+      "hudBg": "rgba(0,0,0,0.35)"
+    },
+    "layout": {
+      "safeMargin": 24
+    }
+  },
+  "gameplay": {
+    "mode": "timer",
+    "duration": 30,
+    "spawnRate": 1.2,
+    "speed": 1,
+    "maxItems": 20,
+    "bombPenalty": 50
+  },
+  "ux": {
+    "countdown": true,
+    "autoReturnSeconds": 60,
+    "sfx": false
+  }
 }
