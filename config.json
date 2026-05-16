@@ -52,13 +52,13 @@
         "src": "/assets/items/bomb.png",
         "label": "Bomb",
         "penalty": 50,
-        "weight": 7,
+        "weight": 6,
         "speedMul": 1.5,
         "width": 125,
         "height": 125
       }
     ],
-    "cartBoxSize": 180,
+    "cartBoxSize": 250,
     "cartImgScale": 2
   },
   "theme": {
@@ -74,10 +74,10 @@
   "gameplay": {
     "mode": "timer",
     "duration": 30,
-    "spawnRate": 2,
-    "speed": 1.5,
+    "spawnRate": 1.2,
+    "speed": 1,
     "maxItems": 20,
-    "bombPenalty": 80
+    "bombPenalty": 50
   },
   "ux": {
     "countdown": true,
