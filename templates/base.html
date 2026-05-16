@@ -31,5 +31,31 @@
     {% block content %}{% endblock %}
   </main>
   <script src="/static/main.js"></script>
+  <script>
+    // Fade out before navigation
+    document.addEventListener("click", (e) => {
+      const link = e.target.closest("a[href]");
+      if (!link) return;
+      const href = link.getAttribute("href");
+      if (!href || href.startsWith("#") || href.startsWith("http") || link.target === "_blank") return;
+      e.preventDefault();
+      const screen = document.querySelector(".screen");
+      if (screen) {
+        screen.style.transition = "opacity 0.4s ease";
+        screen.style.opacity = "0";
+        setTimeout(() => { window.location.href = href; }, 400);
+      } else {
+        window.location.href = href;
+      }
+    });
+
+    // Fade out before form submit
+    document.addEventListener("submit", (e) => {
+      const screen = document.querySelector(".screen");
+      if (!screen) return;
+      screen.style.transition = "opacity 0.4s ease";
+      screen.style.opacity = "0";
+    });
+  </script>
 </body>
 </html>

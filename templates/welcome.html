@@ -4,31 +4,73 @@
   style="background-image:url('{{ cfg.branding.backgrounds.welcome }}')"
 >
   <div class="logo-wrap">
-    <img class="logo" src="{{ cfg.branding.logo }}" alt="Logo" />
+    <!-- <img class="logo" src="{{ cfg.branding.logo }}" alt="Logo" /> -->
   </div>
-  <form class="card form" method="post" action="/start" autocomplete="off">
-    <label>Nama</label>
+
+  <!-- Touch to Start -->
+  <div id="touch-to-start" class="touch-to-start" onclick="revealForm()">
+    <span class="touch-text">Touch to Start</span>
+  </div>
+
+  <!-- Form (hidden initially) -->
+  <form id="register-form" class="card form hidden" method="post" action="/start" autocomplete="off">
+    <label>Name</label>
     <input
       type="text"
       id="name"
       name="name"
       required
-      placeholder="Nama anda"
       pattern="[A-Za-z\s]+"
       title="Nama hanya boleh mengandung huruf dan spasi."
     />
-    <label>No. HP</label>
+    <label>Phone Number</label>
     <input
       type="tel"
       id="phone"
       name="phone"
       required
-      placeholder="08xx..."
       inputmode="tel"
       pattern="[0-9]+"
       title="Hanya masukkan angka (0-9) untuk Nomor HP."
     />
-    <button type="submit" class="btn btn-primary submit-button">Start</button>
+    <button type="submit" class="btn btn-primary submit-button">Register</button>
   </form>
 </div>
+
+<style>
+  .touch-to-start {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .touch-text {
+    font-size: 5em;
+    font-weight: 800;
+    color: #fff;
+    text-align: center;
+    animation: pulse 2s ease-in-out infinite;
+    text-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.97); }
+  }
+</style>
+
+<script>
+  function revealForm() {
+    document.getElementById("touch-to-start").style.display = "none";
+    const form = document.getElementById("register-form");
+    form.classList.remove("hidden");
+    document.getElementById("name").focus();
+  }
+</script>
 {% endblock %}
